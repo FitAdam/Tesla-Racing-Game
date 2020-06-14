@@ -29,7 +29,7 @@ class Road:
 
 def main():
     width = 800
-    height = 600
+    height = 586
     
     pygame.init()
     CLOCK = pygame.time.Clock()
@@ -38,6 +38,7 @@ def main():
     icon = pygame.image.load('graphics/tesla_icon.png')
     pygame.display.set_icon(icon)
     FPS = 120
+
     bkgd = pygame.image.load("graphics/road.png").convert()
     x = 0
 
@@ -47,8 +48,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        screen.blit(bkgd,(x,0))
-
+        rel_x = x % screen.get_rect().width
+        screen.blit(bkgd,(rel_x - screen.get_rect().width,0))
+        if rel_x < width:
+            screen.blit(bkgd,(rel_x,0))
+        x-=1
         pygame.display.update()
         CLOCK.tick(FPS)
 
