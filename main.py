@@ -19,41 +19,44 @@ class Obstacle:
         pass
 
 class Road:
-    def __init__(self):
-        pass
-    def change(self):
-        pass
+    def __init__(self, clock):
+        self.FPS = 120
+        self.x = 0
+        self.width = 800
+        self.height = 586
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.clock = clock
+
+    def load(self):
+        pygame.display.set_caption("Tesla Racing Game")
+        self.icon = pygame.image.load('graphics/tesla_icon.png')
+        pygame.display.set_icon(self.icon)
+        self.bkgd = pygame.image.load("graphics/road.png").convert()
+
+    def move_picture(self):
+        rel_x = self.x % self.screen.get_rect().width
+        self.screen.blit(self.bkgd,(rel_x - self.screen.get_rect().width,0))
+        if rel_x < self.width:
+            self.screen.blit(self.bkgd,(rel_x,0))
+        self.x-=1
+        pygame.display.update()
+        self.clock.tick(self.FPS)
 
 ## to do scrolling background image
 
 
 def main():
-    width = 800
-    height = 586
-    
     pygame.init()
     CLOCK = pygame.time.Clock()
-    screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Tesla Racing Game")
-    icon = pygame.image.load('graphics/tesla_icon.png')
-    pygame.display.set_icon(icon)
-    FPS = 120
-
-    bkgd = pygame.image.load("graphics/road.png").convert()
-    x = 0
-
+    new_road = Road(CLOCK)
+    new_road.load()
     # Game loop
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        rel_x = x % screen.get_rect().width
-        screen.blit(bkgd,(rel_x - screen.get_rect().width,0))
-        if rel_x < width:
-            screen.blit(bkgd,(rel_x,0))
-        x-=1
-        pygame.display.update()
-        CLOCK.tick(FPS)
+        new_road.move_picture()
+        
 
 main()
