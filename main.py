@@ -43,11 +43,19 @@ class Car:
         
 
 class Obstacle:
-    def __init__(self):
+    def __init__(self, x, y):
+        self.obstacle_image = pygame.image.load('graphics/yellow_truck.png')
+        self.x = x
+        self.y = y
+        self.mask = pygame.mask.from_surface(self.obstacle_image)
+
+    def draw_obstacle(self, screen):
+        screen.blit(self.obstacle_image, (self.x, self.y))
+
+    def move_obstacle(self):
         pass
-    def type(self):
-        pass
-    def disapear(self):
+
+    def destroy_obstacle(self):
         pass
 
 def main(window):
@@ -56,12 +64,14 @@ def main(window):
     new_road = Road(CLOCK, window, 1024, 750)
     new_road.load()
     new_car = Car(30, 325)
+    yellow_truck = Obstacle(600, 325)
     
     # Game loop
     running = True
     while running:
         new_road.move_picture()
         new_car.draw_car(window)
+        yellow_truck.draw_obstacle(window)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
