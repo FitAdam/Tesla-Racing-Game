@@ -7,5 +7,6 @@ if __name__ == "__main__":
     import os
     os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)
     import pygame
+    pygame.init()
     window = pygame.display.set_mode((1024, 750))
     main(window)

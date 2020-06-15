@@ -26,16 +26,22 @@ class Road:
         self.x-=1
         self.clock.tick(self.FPS)
 
-class Car():
-    def __init__(self):
-        self.height = 100
-        self.width = 100
+class Car:
+    def __init__(self, x, y):
         self.carImg = pygame.image.load('graphics/cybertruck.png')
-    def move_car(self, screen, x, y):
-        screen.blit(self.carImg, (x,y))
-    # TODO car postioning (3 levels)
-    def car_position(self):
-        pass
+        self.x = x
+        self.y = y
+        self.mask = pygame.mask.from_surface(self.carImg)
+    def draw_car(self, screen):
+        screen.blit(self.carImg, (self.x, self.y))
+
+    def get_width(self):
+        return self.carImg.get_width()
+
+    def get_height(self):
+        return self.carImg.get_width()
+        
+
 class Obstacle:
     def __init__(self):
         pass
@@ -43,35 +49,27 @@ class Obstacle:
         pass
     def disapear(self):
         pass
-    
+
 def main(window):
-    pygame.init()
+    car_vel = 5 #car speed
     CLOCK = pygame.time.Clock()
     new_road = Road(CLOCK, window, 1024, 750)
     new_road.load()
-    new_car = Car()
-    x =  30
-    y = 30
-    y_change = 0
-    car_speed = 0
-
+    new_car = Car(30, 325)
+    
     # Game loop
     running = True
     while running:
+        new_road.move_picture()
+        new_car.draw_car(window)
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
-                    y_change = +5
-                if event.key == pygame.K_UP:
-                    y_change = -5
-        y += y_change
-        new_road.move_picture()
-        new_car.move_car(window,x, y)
-        
-        
-        pygame.display.update()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP] and new_car.y - car_vel > 0: #car goes up
+            new_car.y -= car_vel
+        if keys[pygame.K_DOWN] and new_car.y + car_vel + new_car.get_height() < 870: #car goes down
+            new_car.y += car_vel
        
-
 
