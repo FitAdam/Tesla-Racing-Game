@@ -4,6 +4,7 @@ from pygame.locals import *
 import random
 
 
+
 class View:
     def __init__(self, clock, screen, width, height):
         self.FPS = 120
@@ -17,12 +18,12 @@ class View:
         pygame.display.set_icon(self.icon)
         self.bkgd = pygame.image.load("graphics/road.png").convert()
 
-    def move_picture(self):
+    def move_picture(self, tempo):
         rel_x = self.x % self.screen.get_rect().width
         self.screen.blit(self.bkgd, (rel_x - self.screen.get_rect().width, 0))
         if rel_x < self.width:
             self.screen.blit(self.bkgd, (rel_x, 0))
-        self.x -= 1
+        self.x -= tempo
         self.clock.tick(self.FPS)
 
 
@@ -55,7 +56,7 @@ class Vehicle:
         self.y = y
         self.mask = pygame.mask.from_surface(self.obstacle_image)
 
-    def draw_obstacle(self, screen):
+    def draw_vehicle(self, screen):
         screen.blit(self.obstacle_image, (self.x, self.y))
 
     def move_obstacle(self, vel):
@@ -74,30 +75,38 @@ class Vehicle:
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
+
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
 
+#crash_image = pygame.image.load('graphics/boom_yellow.png')
+
 def main(window):
-    WIDTH, HEIGHT = 1024, 750
+    WIDTH, HEIGHT = 1200, 600
     running = True
+    main_font = pygame.font.SysFont("comicsans", 50)
     level = 0
     car_vel = 5  # car speed
     FPS = 60
-
+    bkg_vel = 1
     vehicles = []
-    test_vehicles = []
     wave_length = 0
-    enemy_vel = 3
+    enemy_vel = 1
 
     current_clock = pygame.time.Clock()
 
-    view = View(current_clock, window, 1024, 750)
+    view = View(current_clock, window, 1200, 600)
     player = Car(30, 325)
 
     def redraw_window():
-        view.move_picture()
+        pygame.font.init()
+        view.move_picture(bkg_vel)
+        level_label = main_font.render(f"Level: {level}", 1, (255, 255, 255))
+        # lives_label = main_font.render(f"Lives: {lives}", 1, (255, 255, 255))
+        # WIN.blit(lives_label, (10, 10))
+        window.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
         for enemy in vehicles:
-            enemy.draw_obstacle(window)
+            enemy.draw_vehicle(window)
 
         player.draw_car(window)
         pygame.display.update()
@@ -109,17 +118,24 @@ def main(window):
 
         if len(vehicles) == 0:
             level += 1
-            wave_length += 1
-            for i in range(wave_length):
-                # vehicle = Vehicle(1500, 300, 0)
 
-                # tour = [0, 290, 580, 865]
-                tour = [580, 400, 290, 170, 0]
-                que = [1300, 1700, 2100, 2500]
-                vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
-                vehicles.append(vehicle)
+            if level > 10:
+                enemy_vel = 10
+            else:
+                enemy_vel += 1
+            if level > 10:
+                bkg_vel = 5
+            elif level > 5:
+                bkg_vel = 3
+            else:
+                bkg_vel = 1
 
-                print(f'Enemy generated! number: {i}')
+            tour = [25, 225, 425]
+            # tour = [580, 400, 290, 170, 0]
+            que = [1300, 1800, 2100]
+            vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
+            vehicles.append(vehicle)
+            print(f'Enemy generated! level: {level}')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -127,7 +143,7 @@ def main(window):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and player.y - car_vel > 0:  # car goes up
             player.y -= car_vel
-        if keys[pygame.K_DOWN] and player.y + car_vel + player.get_height() < 870:  # car goes down
+        if keys[pygame.K_DOWN] and player.y + car_vel + player.get_height() < 700:  # car goes down
             player.y += car_vel
 
         for vehicle in vehicles[:]:
@@ -136,6 +152,7 @@ def main(window):
             # print(f'vehicle x {vehicle.x}')
             if collide(vehicle, player):
                 # player.health -= 10
+                #window.blit(crash_image, (vehicle.x, player.x))
                 vehicles.remove(vehicle)
                 # print('Enemy removed by collision')
             elif vehicle.x + vehicle.get_width() < 0:
