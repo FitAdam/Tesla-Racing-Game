@@ -4,7 +4,6 @@ from pygame.locals import *
 import random
 
 
-
 class View:
     def __init__(self, clock, screen, width, height):
         self.FPS = 120
@@ -28,8 +27,10 @@ class View:
 
 
 class Car:
-    def __init__(self, x, y):
+    def __init__(self, x, y, health):
+        self.health = health
         self.carImg = pygame.image.load('graphics/cybertruck.png')
+        self.health_font = pygame.font.SysFont("comicsans", 50)
         self.x = x
         self.y = y
         self.mask = pygame.mask.from_surface(self.carImg)
@@ -41,7 +42,11 @@ class Car:
         return self.carImg.get_width()
 
     def get_height(self):
-        return self.carImg.get_width()
+        return self.carImg.get_height()
+
+    def display_health(self, screen):
+        lives_label = self.health_font.render(f"Lives: {self.health}", 1, (255, 255, 255))
+        screen.blit(lives_label, (10, 10))
 
 
 class Vehicle:
@@ -62,9 +67,6 @@ class Vehicle:
     def move_obstacle(self, vel):
         self.x -= vel
 
-    def destroy_obstacle(self):
-        pass
-
     def get_width(self):
         return self.obstacle_image.get_width()
 
@@ -72,50 +74,52 @@ class Vehicle:
         return self.obstacle_image.get_height()
 
 
-def collide(obj1, obj2):
-    offset_x = obj2.x - obj1.x
-    offset_y = obj2.y - obj1.y
+class Mechanics:
+    @staticmethod
+    def collide(obj1, obj2):
+        offset_x = obj2.x - obj1.x
+        offset_y = obj2.y - obj1.y
+        return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
-    return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
+    @staticmethod
+    def display_level(level, screen, width):
+        main_font = pygame.font.SysFont("comicsans", 50)
+        level_label = main_font.render(f"Level: {level}", 1, (255, 255, 255))
+        screen.blit(level_label, (width - level_label.get_width() - 10, 10))
 
 
-#crash_image = pygame.image.load('graphics/boom_yellow.png')
+# crash_image = pygame.image.load('graphics/boom_yellow.png')
 
 def main(window):
     WIDTH, HEIGHT = 1200, 600
     running = True
-    main_font = pygame.font.SysFont("comicsans", 50)
     level = 0
     car_vel = 5  # car speed
-    FPS = 60
     bkg_vel = 1
     vehicles = []
-    wave_length = 0
     enemy_vel = 1
 
     current_clock = pygame.time.Clock()
 
-    view = View(current_clock, window, 1200, 600)
-    player = Car(30, 325)
+    view = View(current_clock, window, WIDTH, HEIGHT)
+    player = Car(30, 325, 3)
 
     def redraw_window():
         pygame.font.init()
         view.move_picture(bkg_vel)
-        level_label = main_font.render(f"Level: {level}", 1, (255, 255, 255))
-        # lives_label = main_font.render(f"Lives: {lives}", 1, (255, 255, 255))
-        # WIN.blit(lives_label, (10, 10))
-        window.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
+
         for enemy in vehicles:
             enemy.draw_vehicle(window)
 
         player.draw_car(window)
+        Mechanics.display_level(level, window, WIDTH)
+        player.display_health(window)
         pygame.display.update()
 
     # Game loop
     while running:
         # current_clock.tick(FPS)
         redraw_window()
-
         if len(vehicles) == 0:
             level += 1
 
@@ -136,6 +140,7 @@ def main(window):
             vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
             vehicles.append(vehicle)
             print(f'Enemy generated! level: {level}')
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -143,20 +148,19 @@ def main(window):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and player.y - car_vel > 0:  # car goes up
             player.y -= car_vel
-        if keys[pygame.K_DOWN] and player.y + car_vel + player.get_height() < 700:  # car goes down
+        if keys[pygame.K_DOWN] and player.y + car_vel + player.get_height() < HEIGHT:  # car goes down
             player.y += car_vel
 
         for vehicle in vehicles[:]:
             vehicle.move_obstacle(enemy_vel)
             # print(f'vehicle y {vehicle.y}')
             # print(f'vehicle x {vehicle.x}')
-            if collide(vehicle, player):
-                # player.health -= 10
-                #window.blit(crash_image, (vehicle.x, player.x))
+            if Mechanics.collide(vehicle, player):
+                player.health -= 1
+                # window.blit(crash_image, (vehicle.x, player.x))
                 vehicles.remove(vehicle)
                 # print('Enemy removed by collision')
             elif vehicle.x + vehicle.get_width() < 0:
-                # lives -= 1
                 vehicles.remove(vehicle)
                 # print(f'Enemy removed by vehicle.x {vehicle.x} and get_width(){vehicle.get_width() }')
         # elif vehicle.x
