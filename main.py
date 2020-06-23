@@ -87,8 +87,16 @@ class Mechanics:
         level_label = main_font.render(f"Level: {level}", 1, (255, 255, 255))
         screen.blit(level_label, (width - level_label.get_width() - 10, 10))
 
+class Crash:
+    def __init__(self, x, y):
+        self.crash_image = pygame.image.load('graphics/boom_yellow.png')
+        self.x = x
+        self.y = y
+        self.mask = pygame.mask.from_surface(self.crash_image)
 
-# crash_image = pygame.image.load('graphics/boom_yellow.png')
+    def draw_crash(self, screen):
+        screen.blit(self.crash_image, (self.x, self.y))
+
 
 def main(window):
     WIDTH, HEIGHT = 1200, 600
@@ -114,6 +122,7 @@ def main(window):
         player.draw_car(window)
         Mechanics.display_level(level, window, WIDTH)
         player.display_health(window)
+        
         pygame.display.update()
 
     # Game loop
@@ -157,9 +166,12 @@ def main(window):
             # print(f'vehicle x {vehicle.x}')
             if Mechanics.collide(vehicle, player):
                 player.health -= 1
-                # window.blit(crash_image, (vehicle.x, player.x))
+                pygame.display.flip()
+                new_crash = Crash(vehicle.x + 30, vehicle.y)
+                new_crash.draw_crash(window)
+                pygame.display.flip()
                 vehicles.remove(vehicle)
-                # print('Enemy removed by collision')
+                print('Enemy removed by collision')
             elif vehicle.x + vehicle.get_width() < 0:
                 vehicles.remove(vehicle)
                 # print(f'Enemy removed by vehicle.x {vehicle.x} and get_width(){vehicle.get_width() }')

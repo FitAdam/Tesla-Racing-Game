@@ -11,3 +11,4 @@ if __name__ == "__main__":
     pygame.init()
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     main(window)
+   
