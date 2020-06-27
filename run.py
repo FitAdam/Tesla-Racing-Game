@@ -1,4 +1,4 @@
-from main import main
+from main import main_menu
 
 
 if __name__ == "__main__":
@@ -10,5 +10,5 @@ if __name__ == "__main__":
     import pygame
     pygame.init()
     window = pygame.display.set_mode((WIDTH, HEIGHT))
-    main(window)
+    main_menu(window)
    

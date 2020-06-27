@@ -152,13 +152,16 @@ def main(window):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                quit()
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and player.y - car_vel > 0:  # car goes up
             player.y -= car_vel
         if keys[pygame.K_DOWN] and player.y + car_vel + player.get_height() < HEIGHT:  # car goes down
             player.y += car_vel
+        if keys[pygame.K_ESCAPE]:
+            running = False
+            main_menu(window)
 
         for vehicle in vehicles[:]:
             vehicle.move_obstacle(enemy_vel)
@@ -166,13 +169,32 @@ def main(window):
             # print(f'vehicle x {vehicle.x}')
             if Mechanics.collide(vehicle, player):
                 player.health -= 1
+
                 pygame.display.flip()
                 new_crash = Crash(vehicle.x + 30, vehicle.y)
                 new_crash.draw_crash(window)
                 pygame.display.flip()
+                
                 vehicles.remove(vehicle)
                 print('Enemy removed by collision')
             elif vehicle.x + vehicle.get_width() < 0:
                 vehicles.remove(vehicle)
                 # print(f'Enemy removed by vehicle.x {vehicle.x} and get_width(){vehicle.get_width() }')
         # elif vehicle.x
+
+def main_menu(screen):
+    run = True
+    while  run:
+        bkgd = pygame.image.load("graphics/game_menu.png")
+        title_font = pygame.font.SysFont("comicsans", 80)
+        screen.blit(bkgd, (0,0))
+        title_label = title_font.render("Press any key to start!",1,(255,255,255))
+        screen.blit(title_label,(300, 100) )
+        pygame.display.update()
+        for event in pygame.event.get():
+            if  event.type == pygame.QUIT:
+                run = False
+            if event.type ==pygame.KEYDOWN:
+                main(screen)
+    pygame.quit()
+        
