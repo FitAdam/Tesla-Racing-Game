@@ -5,8 +5,8 @@ import random
 
 
 class View:
-    def __init__(self, clock, screen, width, height):
-        self.FPS = 120
+    def __init__(self, clock, screen, width, height, FPS):
+        self.FPS = FPS
         self.x = 0
         self.clock = clock
         self.screen = screen
@@ -100,17 +100,21 @@ class Crash:
 
 def main(window):
     WIDTH, HEIGHT = 1200, 600
+    FPS = 120
     running = True
     level = 0
     car_vel = 5  # car speed
     bkg_vel = 1
     vehicles = []
-    enemy_vel = 1
+    enemy_vel = 3
 
     current_clock = pygame.time.Clock()
 
-    view = View(current_clock, window, WIDTH, HEIGHT)
+    view = View(current_clock, window, WIDTH, HEIGHT, FPS)
     player = Car(30, 325, 3)
+
+    lost = False
+    lost_count = 0
 
     def redraw_window():
         pygame.font.init()
@@ -123,12 +127,27 @@ def main(window):
         Mechanics.display_level(level, window, WIDTH)
         player.display_health(window)
         
+        if lost:
+            lost_font = pygame.font.SysFont("comicsans", 80)
+            lost_label = lost_font.render("You lost!",1,(255,255,255))
+            window.blit(lost_label, (350,350))
         pygame.display.update()
 
     # Game loop
     while running:
-        # current_clock.tick(FPS)
+        current_clock.tick(FPS)
         redraw_window()
+        if player.health <= 0:
+            lost = True
+            lost_count += 1
+
+        if lost:
+            if lost_count > FPS:
+                running = False
+                main_menu(window)
+            else:
+                continue
+
         if len(vehicles) == 0:
             level += 1
 
