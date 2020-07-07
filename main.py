@@ -96,39 +96,45 @@ class Mechanics:
         tour = [25, 225, 425]
         # the line horizontally
         # 1 2 3 
-        que = [1300, 1800, 2100]
+        collumn = [1300, 1600, 1900]
+        # random placed vehicle
+        random_vehicle = Vehicle(random.choice(collumn), random.choice(tour), random.randrange(0, 3))
+        # vehicles for the grid
+        vehicle_a_0 = Vehicle( collumn[0], tour[0], random.randrange(0,3))
+        vehicle_a_1 = Vehicle( collumn[1], tour[0], random.randrange(0,3))
+        vehicle_a_2 = Vehicle( collumn[2], tour[0], random.randrange(0,3))
+        
+        vehicle_b_0 = Vehicle( collumn[0], tour[1], random.randrange(0,3))
+        vehicle_b_1 = Vehicle( collumn[1], tour[1], random.randrange(0,3))
+        vehicle_b_2 = Vehicle( collumn[2], tour[1], random.randrange(0,3))
 
-        vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
-        vehicle_row_one = Vehicle( que[0], tour[0], random.randrange(0,3))
-        vehicle_row_two = Vehicle( que[0], tour[2], random.randrange(0,3))
-        two_rows = [vehicle_row_one, vehicle_row_two]
-        middle_row = Vehicle(que[1], tour[1], random.randrange(0,3))
+        vehicle_c_0 = Vehicle( collumn[0], tour[2], random.randrange(0,3))
+        vehicle_c_1 = Vehicle( collumn[1], tour[2], random.randrange(0,3))
+        vehicle_c_2 = Vehicle( collumn[2], tour[2], random.randrange(0,3))
+        
+        first_grid = [vehicle_b_0, vehicle_a_2, vehicle_c_2]
+        second_grid = [vehicle_a_0, vehicle_c_0, vehicle_b_2]
+        third_grid = [vehicle_a_0, vehicle_b_0, vehicle_c_2]
+        fourth_grid = [vehicle_a_2, vehicle_b_2, vehicle_c_0]
 
-        vehicle_row_one_2 = Vehicle( que[2], tour[0], random.randrange(0,3))
-        vehicle_row_two_2 = Vehicle( que[2], tour[2], random.randrange(0,3))
-        two_rows_2 = [vehicle_row_one_2, vehicle_row_two_2]
-        middle_row_2 = Vehicle(que[2], tour[1], random.randrange(0,3))
 
         # generate random number to choose the wave of enemies
-        random_num = random.randint(0,4) #it does indeed include first and last number!
+        random_num = random.randint(0, 4) #it does indeed include first and last number!
         # wave of enemies 
         if random_num == 0:
-            vehicles += two_rows
+            vehicles += first_grid
             return vehicles
         elif random_num == 1:
-            return vehicles.append(vehicle)
+            vehicles += second_grid
+            return vehicles
         elif random_num == 2:
-            # three vehicles
-            vehicles += two_rows_2
-            vehicles.append(middle_row_2)
+            vehicles += third_grid
             return vehicles
         elif random_num == 3:
-            # three vehicles
-            vehicles += two_rows
-            vehicles.append(middle_row)
+            vehicles += fourth_grid
             return vehicles
         else:
-            return vehicles.append(middle_row)
+            return vehicles.append(random_vehicle)
 
         print(f'Wave generated!')
 
