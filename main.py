@@ -82,10 +82,55 @@ class Mechanics:
         return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
     @staticmethod
-    def display_level(level, screen, width):
+    def display_score(score, screen, width):
         main_font = pygame.font.SysFont("comicsans", 50)
-        level_label = main_font.render(f"Level: {level}", 1, (255, 255, 255))
-        screen.blit(level_label, (width - level_label.get_width() - 10, 10))
+        score_label = main_font.render(f"Score: {score}", 1, (255, 255, 255))
+        screen.blit(score_label, (width - score_label.get_width() - 10, 10))
+
+    @staticmethod
+    def enemy_generator(vehicles):
+        # the line vertically
+        # 1
+        # 2
+        # 3
+        tour = [25, 225, 425]
+        # the line horizontally
+        # 1 2 3 
+        que = [1300, 1800, 2100]
+
+        vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
+        vehicle_row_one = Vehicle( que[0], tour[0], random.randrange(0,3))
+        vehicle_row_two = Vehicle( que[0], tour[2], random.randrange(0,3))
+        two_rows = [vehicle_row_one, vehicle_row_two]
+        middle_row = Vehicle(que[1], tour[1], random.randrange(0,3))
+
+        vehicle_row_one_2 = Vehicle( que[2], tour[0], random.randrange(0,3))
+        vehicle_row_two_2 = Vehicle( que[2], tour[2], random.randrange(0,3))
+        two_rows_2 = [vehicle_row_one_2, vehicle_row_two_2]
+        middle_row_2 = Vehicle(que[2], tour[1], random.randrange(0,3))
+
+        # generate random number to choose the wave of enemies
+        random_num = random.randint(0,4) #it does indeed include first and last number!
+        # wave of enemies 
+        if random_num == 0:
+            vehicles += two_rows
+            return vehicles
+        elif random_num == 1:
+            return vehicles.append(vehicle)
+        elif random_num == 2:
+            # three vehicles
+            vehicles += two_rows_2
+            vehicles.append(middle_row_2)
+            return vehicles
+        elif random_num == 3:
+            # three vehicles
+            vehicles += two_rows
+            vehicles.append(middle_row)
+            return vehicles
+        else:
+            return vehicles.append(middle_row)
+
+        print(f'Wave generated!')
 
 class Crash:
     def __init__(self, x, y):
@@ -103,6 +148,7 @@ def main(window):
     FPS = 120
     running = True
     level = 0
+    score = level
     car_vel = 5  # car speed
     bkg_vel = 1
     vehicles = []
@@ -124,13 +170,14 @@ def main(window):
             enemy.draw_vehicle(window)
 
         player.draw_car(window)
-        Mechanics.display_level(level, window, WIDTH)
+        Mechanics.display_score(level, window, WIDTH)
         player.display_health(window)
         
         if lost:
-            lost_font = pygame.font.SysFont("comicsans", 80)
-            lost_label = lost_font.render("You lost!",1,(255,255,255))
-            window.blit(lost_label, (350,350))
+            #lost_font = pygame.font.SysFont("comicsans", 80)
+            #lost_label = lost_font.render("You lost!",1,(255,255,255))
+            #window.blit(lost_label, (350,350))
+            game_over(window, score)
         pygame.display.update()
 
     # Game loop
@@ -162,13 +209,15 @@ def main(window):
             else:
                 bkg_vel = 1
 
+            Mechanics.enemy_generator(vehicles)
+            """
             tour = [25, 225, 425]
             # tour = [580, 400, 290, 170, 0]
             que = [1300, 1800, 2100]
             vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
             vehicles.append(vehicle)
             print(f'Enemy generated! level: {level}')
-
+            """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -217,3 +266,20 @@ def main_menu(screen):
                 main(screen)
     pygame.quit()
         
+def game_over(screen, score):
+    run = True
+    while  run:
+        bkgd = pygame.image.load("graphics/game_over.png")
+        title_font = pygame.font.SysFont("comicsans", 80)
+        screen.blit(bkgd, (0,0))
+        title_label = title_font.render("Game over!",1,(255,255,255))
+        new_score_label = title_font.render(f"Score {score}",1,(255,255,255))
+        screen.blit(title_label,(600, 200) )
+        screen.blit(new_score_label,(600, 300))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if  event.type == pygame.QUIT:
+                run = False
+            if event.type ==pygame.KEYDOWN:
+                main_menu(screen)
+    pygame.quit()
