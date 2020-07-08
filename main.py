@@ -183,7 +183,7 @@ def main(window):
             #lost_font = pygame.font.SysFont("comicsans", 80)
             #lost_label = lost_font.render("You lost!",1,(255,255,255))
             #window.blit(lost_label, (350,350))
-            game_over(window, score)
+            game_over(window, level)
         pygame.display.update()
 
     # Game loop
@@ -276,10 +276,10 @@ def game_over(screen, score):
     run = True
     while  run:
         bkgd = pygame.image.load("graphics/game_over.png")
-        title_font = pygame.font.SysFont("comicsans", 80)
+        gameover_font = pygame.font.SysFont("comicsans", 80)
         screen.blit(bkgd, (0,0))
-        title_label = title_font.render("Game over!",1,(255,255,255))
-        new_score_label = title_font.render(f"Score {score}",1,(255,255,255))
+        title_label = gameover_font.render("Game over!",1,(255,255,255))
+        new_score_label = gameover_font.render(f"Score {score}",1,(255,255,255))
         screen.blit(title_label,(600, 200) )
         screen.blit(new_score_label,(600, 300))
         pygame.display.update()
