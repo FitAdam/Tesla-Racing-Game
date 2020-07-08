@@ -53,10 +53,11 @@ class Vehicle:
     yellow_truck = pygame.image.load('graphics/yellow_truck.png')
     red_truck = pygame.image.load('graphics/red_truck.png')
     fire_truck = pygame.image.load('graphics/fire_truck.png')
-    types_of_vehicles = [yellow_truck, fire_truck, red_truck]
+    garbagge_collector = pygame.image.load('graphics/garbagge_collector.png')
+    types_of_vehicles = [yellow_truck, fire_truck, red_truck, garbagge_collector]
 
     def __init__(self, x, y, number_type):
-        self.obstacle_image = self.types_of_vehicles[number_type]
+        self.obstacle_image = self.types_of_vehicles[number_type].convert_alpha()
         self.x = x
         self.y = y
         self.mask = pygame.mask.from_surface(self.obstacle_image)
@@ -98,19 +99,19 @@ class Mechanics:
         # 1 2 3 
         collumn = [1300, 1600, 1900]
         # random placed vehicle
-        random_vehicle = Vehicle(random.choice(collumn), random.choice(tour), random.randrange(0, 3))
+        random_vehicle = Vehicle(random.choice(collumn), random.choice(tour), random.randrange(0, 4))
         # vehicles for the grid
-        vehicle_a_0 = Vehicle( collumn[0], tour[0], random.randrange(0,3))
-        vehicle_a_1 = Vehicle( collumn[1], tour[0], random.randrange(0,3))
-        vehicle_a_2 = Vehicle( collumn[2], tour[0], random.randrange(0,3))
+        vehicle_a_0 = Vehicle( collumn[0], tour[0], random.randrange(0,4))
+        vehicle_a_1 = Vehicle( collumn[1], tour[0], random.randrange(0,4))
+        vehicle_a_2 = Vehicle( collumn[2], tour[0], random.randrange(0,4))
         
-        vehicle_b_0 = Vehicle( collumn[0], tour[1], random.randrange(0,3))
-        vehicle_b_1 = Vehicle( collumn[1], tour[1], random.randrange(0,3))
-        vehicle_b_2 = Vehicle( collumn[2], tour[1], random.randrange(0,3))
+        vehicle_b_0 = Vehicle( collumn[0], tour[1], random.randrange(0,4))
+        vehicle_b_1 = Vehicle( collumn[1], tour[1], random.randrange(0,4))
+        vehicle_b_2 = Vehicle( collumn[2], tour[1], random.randrange(0,4))
 
-        vehicle_c_0 = Vehicle( collumn[0], tour[2], random.randrange(0,3))
-        vehicle_c_1 = Vehicle( collumn[1], tour[2], random.randrange(0,3))
-        vehicle_c_2 = Vehicle( collumn[2], tour[2], random.randrange(0,3))
+        vehicle_c_0 = Vehicle( collumn[0], tour[2], random.randrange(0,4))
+        vehicle_c_1 = Vehicle( collumn[1], tour[2], random.randrange(0,4))
+        vehicle_c_2 = Vehicle( collumn[2], tour[2], random.randrange(0,4))
         
         first_grid = [vehicle_b_0, vehicle_a_2, vehicle_c_2]
         second_grid = [vehicle_a_0, vehicle_c_0, vehicle_b_2]
@@ -140,7 +141,7 @@ class Mechanics:
 
 class Crash:
     def __init__(self, x, y):
-        self.crash_image = pygame.image.load('graphics/boom_yellow.png')
+        self.crash_image = pygame.image.load('graphics/boom_yellow.png').convert_alpha()
         self.x = x
         self.y = y
         self.mask = pygame.mask.from_surface(self.crash_image)
@@ -148,6 +149,11 @@ class Crash:
     def draw_crash(self, screen):
         screen.blit(self.crash_image, (self.x, self.y))
 
+    def move_crash(self, vel):
+        self.x -= vel
+
+    def get_width(self):
+        return self.crash_image.get_width()
 
 def main(window):
     WIDTH, HEIGHT = 1200, 600
@@ -156,9 +162,10 @@ def main(window):
     level = 0
     score = level
     car_vel = 5  # car speed
-    bkg_vel = 1
+    bkg_vel = 3
     vehicles = []
     enemy_vel = 3
+    effects = []
 
     current_clock = pygame.time.Clock()
 
@@ -175,14 +182,14 @@ def main(window):
         for enemy in vehicles:
             enemy.draw_vehicle(window)
 
+        for effect in effects:
+            effect.draw_crash(window)
+
         player.draw_car(window)
         Mechanics.display_score(level, window, WIDTH)
         player.display_health(window)
         
         if lost:
-            #lost_font = pygame.font.SysFont("comicsans", 80)
-            #lost_label = lost_font.render("You lost!",1,(255,255,255))
-            #window.blit(lost_label, (350,350))
             game_over(window, level)
         pygame.display.update()
 
@@ -209,11 +216,11 @@ def main(window):
             else:
                 enemy_vel += 1
             if level > 10:
-                bkg_vel = 5
+                bkg_vel = 7
             elif level > 5:
-                bkg_vel = 3
+                bkg_vel = 4
             else:
-                bkg_vel = 1
+                bkg_vel = 3
 
             Mechanics.enemy_generator(vehicles)
             """
@@ -246,7 +253,7 @@ def main(window):
 
                 pygame.display.flip()
                 new_crash = Crash(vehicle.x + 30, vehicle.y)
-                new_crash.draw_crash(window)
+                effects.append(new_crash)
                 pygame.display.flip()
                 
                 vehicles.remove(vehicle)
@@ -255,6 +262,12 @@ def main(window):
                 vehicles.remove(vehicle)
                 # print(f'Enemy removed by vehicle.x {vehicle.x} and get_width(){vehicle.get_width() }')
         # elif vehicle.x
+        for effect in effects[:]:
+
+            effect.move_crash(enemy_vel)
+
+            if effect.x + effect.get_width() < 0:
+                effects.remove(effect)
 
 def main_menu(screen):
     run = True
