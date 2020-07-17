@@ -2,6 +2,7 @@
 import pygame
 from pygame.locals import *
 import random
+from database import DB
 
 
 class View:
@@ -15,7 +16,7 @@ class View:
         pygame.display.set_caption("Tesla Racing Game")
         self.icon = pygame.image.load('graphics/tesla_icon.png')
         pygame.display.set_icon(self.icon)
-        self.bkgd = pygame.image.load("graphics/road.png").convert()
+        self.bkgd = pygame.image.load("graphics/road.png").convert_alpha()
 
     def move_picture(self, tempo):
         rel_x = self.x % self.screen.get_rect().width
@@ -74,6 +75,29 @@ class Vehicle:
     def get_height(self):
         return self.obstacle_image.get_height()
 
+class Live_bonus:
+    def __init__(self, x, y, live_premium):
+        self.bonus_image = pygame.image.load('graphics/battery.png').convert_alpha()
+        self.x = x
+        self.y = y
+        self.mask = pygame.mask.from_surface(self.bonus_image)
+        self.live_premium = 1
+
+    def draw_bonus(self, screen):
+        screen.blit(self.bonus_image, (self.x, self.y))
+
+    def move_bonus(self, vel):
+        self.x -= vel
+
+    def get_width(self):
+        return self.bonus_image.get_width()
+
+    def get_height(self):
+        return self.bonus_image.get_height()
+    
+    #TO DO CREATE SYSTEM OF CHANGING PLAYER'S VAR
+    def add_live(self, obj1):
+        obj1.health += self.live_premium 
 
 class Mechanics:
     @staticmethod
@@ -84,7 +108,7 @@ class Mechanics:
 
     @staticmethod
     def display_score(score, screen, width):
-        main_font = pygame.font.SysFont("comicsans", 50)
+        main_font = pygame.font.SysFont("Bauhaus 93", 50)
         score_label = main_font.render(f"Score: {score}", 1, (255, 255, 255))
         screen.blit(score_label, (width - score_label.get_width() - 10, 10))
 
@@ -137,7 +161,41 @@ class Mechanics:
         else:
             return vehicles.append(random_vehicle)
 
-        print(f'Wave generated!')
+    @staticmethod
+    def perks_generator(perks):
+        # the line vertically
+        # 1
+        # 2
+        # 3
+        tour = [25, 225, 425]
+        # the line horizontally
+        # 1 2 3 
+        collumn = [1250, 1550, 1850]
+        # random placed perk
+        random_perk = Live_bonus(random.choice(collumn), random.choice(tour), random.randint(1, 3))
+        # slots for the grid
+        slot_a_0 = Live_bonus( collumn[0], tour[0], random.randint(1, 2))
+        slot_a_1 = Live_bonus( collumn[0], tour[1], random.randint(1, 2))
+        slot_a_2 = Live_bonus( collumn[0], tour[2], random.randint(1, 2))
+        
+        # generate random number to choose the wave of enemies
+        random_num = random.randint(0, 4) #it does indeed include first and last number!
+        # wave of enemies 
+        if random_num == 0:
+            perks.append(slot_a_0)
+            return perks
+        elif random_num == 1:
+            perks.append(slot_a_1)
+            return perks
+        elif random_num == 2:
+            perks.append(slot_a_2)
+            return perks
+        elif random_num == 3:
+            perks.append(slot_a_0)
+            perks.append(slot_a_1)
+            perks.append(slot_a_2)
+        else:
+            return perks.append(random_perk)
 
 class Crash:
     def __init__(self, x, y):
@@ -166,6 +224,8 @@ def main(window):
     vehicles = []
     enemy_vel = 3
     effects = []
+    perks = []
+
 
     current_clock = pygame.time.Clock()
 
@@ -174,6 +234,8 @@ def main(window):
 
     lost = False
     lost_count = 0
+
+    
 
     def redraw_window():
         pygame.font.init()
@@ -184,6 +246,9 @@ def main(window):
 
         for effect in effects:
             effect.draw_crash(window)
+
+        for bonus in perks:
+            bonus.draw_bonus(window)
 
         player.draw_car(window)
         Mechanics.display_score(level, window, WIDTH)
@@ -211,10 +276,11 @@ def main(window):
         if len(vehicles) == 0:
             level += 1
 
-            if level > 10:
-                enemy_vel = 10
-            else:
+            if level < 10:
                 enemy_vel += 1
+            else:
+                enemy_vel = 14
+                            
             if level > 10:
                 bkg_vel = 7
             elif level > 5:
@@ -223,14 +289,13 @@ def main(window):
                 bkg_vel = 3
 
             Mechanics.enemy_generator(vehicles)
-            """
-            tour = [25, 225, 425]
-            # tour = [580, 400, 290, 170, 0]
-            que = [1300, 1800, 2100]
-            vehicle = Vehicle(random.choice(que), random.choice(tour), random.randrange(0, 3))
-            vehicles.append(vehicle)
-            print(f'Enemy generated! level: {level}')
-            """
+
+        # TO DO SYSTEM OF BONUSES
+       # if level % 3 == 0:
+            Mechanics.perks_generator(perks)
+
+            
+           
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -269,11 +334,31 @@ def main(window):
             if effect.x + effect.get_width() < 0:
                 effects.remove(effect)
 
+        for bonus in perks[:]:
+
+            bonus.move_bonus(enemy_vel)
+
+            if Mechanics.collide(bonus, player):
+                # TO DO add_live does not work / change for health+= /?
+                #bonus.add_live(player)
+                player.health += 1
+
+                pygame.display.flip()
+                    
+                    
+                pygame.display.flip()
+                    
+                perks.remove(bonus)
+                
+            elif bonus.x + bonus.get_width() < 0:
+                perks.remove(bonus)
+
+
 def main_menu(screen):
     run = True
     while  run:
         bkgd = pygame.image.load("graphics/game_menu.png")
-        title_font = pygame.font.SysFont("comicsans", 80)
+        title_font = pygame.font.SysFont("Bauhaus 93", 80)
         screen.blit(bkgd, (0,0))
         title_label = title_font.render("Press any key to start!",1,(255,255,255))
         screen.blit(title_label,(300, 100) )
@@ -286,19 +371,29 @@ def main_menu(screen):
     pygame.quit()
         
 def game_over(screen, score):
+    db = DB()
+    db.connect()
+    db.add_record(score)
+    tablescore = db.get_records()
+    db.close_connection()
     run = True
     while  run:
         bkgd = pygame.image.load("graphics/game_over.png")
-        gameover_font = pygame.font.SysFont("comicsans", 80)
+        gameover_font = pygame.font.SysFont("Bauhaus 93", 80)
         screen.blit(bkgd, (0,0))
         title_label = gameover_font.render("Game over!",1,(255,255,255))
         new_score_label = gameover_font.render(f"Score {score}",1,(255,255,255))
+        # TO DO FIX THE TABLE SCORE
+        table_score_label = gameover_font.render(f"Tablescore {tablescore}",1,(255,255,255))
         screen.blit(title_label,(600, 200) )
         screen.blit(new_score_label,(600, 300))
+        screen.blit(table_score_label,(600, 600))
         pygame.display.update()
+
         for event in pygame.event.get():
             if  event.type == pygame.QUIT:
                 run = False
             if event.type ==pygame.KEYDOWN:
                 main_menu(screen)
+
     pygame.quit()
