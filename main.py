@@ -31,7 +31,7 @@ class Car:
     def __init__(self, x, y, health):
         self.health = health
         self.carImg = pygame.image.load('graphics/cybertruck.png')
-        self.shield_image = pygame.image.load('graphics/shield_activated.png').convert_alpha()
+        self.shield_image = pygame.image.load('graphics/shield_activated.png')
         self.health_font = pygame.font.SysFont("comicsans", 50)
         self.x = x
         self.y = y
@@ -62,7 +62,7 @@ class Vehicle:
     types_of_vehicles = [yellow_truck, fire_truck, red_truck, garbagge_collector]
 
     def __init__(self, x, y, number_type):
-        self.obstacle_image = self.types_of_vehicles[number_type].convert_alpha()
+        self.obstacle_image = self.types_of_vehicles[number_type] #.convert_alpha()
         self.x = x
         self.y = y
         self.mask = pygame.mask.from_surface(self.obstacle_image)
@@ -358,8 +358,8 @@ def main(window):
 
             Mechanics.enemy_generator(vehicles)
 
-        # TO DO SYSTEM OF BONUSES
-            random_num = 1 #  random.randint(0, 2)
+        # System of bonuses:
+            random_num = random.randint(0, 5)
 
             if random_num == 0:
                 Mechanics.live_generator(batteries)
@@ -382,15 +382,25 @@ def main(window):
             main_menu(window)
 
         for vehicle in vehicles[:]:
+
             vehicle.move_obstacle(enemy_vel)
-    
+
+            for defense in defenses[:]:
+
+                if Mechanics.collide(defense, vehicle):
+                    vehicle.x += 100
+                    new_crash = Crash(vehicle.x + 30, vehicle.y)
+                    effects.append(new_crash)
+                    vehicles.remove(vehicle)
+                    defenses.remove(defense)
+
             if Mechanics.collide(vehicle, player):
                 player.health -= 1
 
-                pygame.display.flip()
+                #pygame.display.flip()
                 new_crash = Crash(vehicle.x + 30, vehicle.y)
                 effects.append(new_crash)
-                pygame.display.flip()
+                #pygame.display.flip()
                 
                 vehicles.remove(vehicle)
                 
@@ -413,7 +423,7 @@ def main(window):
                 bonus.add_live(player)
                 
 
-                pygame.display.flip()
+                #pygame.display.flip()
                     
                     
                 batteries.remove(bonus)
@@ -427,15 +437,16 @@ def main(window):
 
             if Mechanics.collide(shield, player):
                 
-                pygame.display.flip()
+                #pygame.display.flip()
 
-                defenses.append(shield)
+                defense = shield
+
+                defenses.append(defense)
                 
                 shields.remove(shield)
                 
             elif shield.x + shield.get_width() < 0:
                 shields.remove(shield)
-
 
 def main_menu(screen):
     run = True
@@ -468,7 +479,7 @@ def game_over(screen, score):
         new_score_label = gameover_font.render(f"Score {score}",1,(255,255,255))
         # TO DO FIX THE TABLE SCORE
         table_score_label = gameover_font.render(f"Tablescore {tablescore}",1,(255,255,255))
-        screen.blit(title_label,(600, 200) )
+        #screen.blit(title_label,(600, 200) )
         screen.blit(new_score_label,(600, 300))
         screen.blit(table_score_label,(600, 600))
         pygame.display.update()
