@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from pygame import mixer
 
 
 class View:
@@ -14,7 +15,7 @@ class View:
         self.icon = pygame.image.load('graphics/tesla_icon.png')
         pygame.display.set_icon(self.icon)
         self.bkgd = pygame.image.load("graphics/road.png").convert_alpha()
-
+        mixer.music.load('background_music.mp3')
     def move_picture(self, tempo):
         rel_x = self.x % self.screen.get_rect().width
         self.screen.blit(self.bkgd, (rel_x - self.screen.get_rect().width, 0))
@@ -22,3 +23,6 @@ class View:
             self.screen.blit(self.bkgd, (rel_x, 0))
         self.x -= tempo
         self.clock.tick(self.FPS)
+
+    def play_music(self):
+        mixer.music.play(-1)

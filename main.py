@@ -8,6 +8,7 @@ from vehicle import Vehicle
 from bonuses import Shield_bonus, Live_bonus
 from mechanics import Mechanics
 from crash import Crash
+from pygame import mixer
 
 
 
@@ -29,6 +30,7 @@ def main(window):
     current_clock = pygame.time.Clock()
 
     view = View(current_clock, window, WIDTH, HEIGHT, FPS)
+    view.play_music()
     player = Car(30, 325, 3)
 
     lost = False
@@ -117,9 +119,10 @@ def main(window):
             main_menu(window)
 
         for vehicle in vehicles[:]:
-
+            
             vehicle.move_obstacle(enemy_vel)
-
+            pygame.display.update()
+            
             for defense in defenses[:]:
 
                 if Mechanics.collide(defense, vehicle):
@@ -134,6 +137,7 @@ def main(window):
 
                 # pygame.display.flip()
                 new_crash = Crash(vehicle.x + 30, vehicle.y)
+                new_crash.play_crash_sound()
                 effects.append(new_crash)
                 # pygame.display.flip()
 
@@ -155,6 +159,7 @@ def main(window):
 
             if Mechanics.collide(bonus, player):
                 # This adds life points for player
+                Mechanics.collecting()
                 bonus.add_live(player)
 
                 # pygame.display.flip()
@@ -171,7 +176,7 @@ def main(window):
             if Mechanics.collide(shield, player):
 
                 # pygame.display.flip()
-
+                Mechanics.collecting()
                 defense = shield
 
                 defenses.append(defense)
@@ -182,8 +187,12 @@ def main(window):
                 shields.remove(shield)
 
 def main_menu(screen):
+    mixer.music.load('menu_music.mp3')
+    mixer.music.play(-1)
     run = True
     while  run:
+        #pygame.mixer.music.stop()
+        
         pygame.display.set_caption("Tesla Racing Game")
         icon = pygame.image.load('graphics/tesla_icon.png')
         pygame.display.set_icon(icon)
@@ -207,8 +216,12 @@ def game_over(screen, score):
     db.add_record(score)
     tablescore = db.get_records()
     db.close_connection()
+    mixer.music.load('menu_music.mp3')
+    mixer.music.play(-1)
     run = True
     while  run:
+        #pygame.mixer.music.stop()
+        
         pygame.display.set_caption("Tesla Racing Game")
         icon = pygame.image.load('graphics/tesla_icon.png')
         pygame.display.set_icon(icon)

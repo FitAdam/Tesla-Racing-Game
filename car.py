@@ -4,7 +4,7 @@ from pygame.locals import *
 class Car:
     def __init__(self, x, y, health):
         self.health = health
-        self.carImg = pygame.image.load('graphics/cybertruck.png')
+        self.carImg = pygame.image.load('graphics/cybertruck.png') 
         self.shield_image = pygame.image.load('graphics/shield_activated.png')
         self.health_font = pygame.font.SysFont("comicsans", 50)
         self.x = x

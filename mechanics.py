@@ -3,6 +3,7 @@ from pygame.locals import *
 from vehicle import Vehicle
 from bonuses import Shield_bonus, Live_bonus
 import random
+from pygame import mixer
 
 class Mechanics:
     @staticmethod
@@ -161,3 +162,7 @@ class Mechanics:
         else:
             return perks.append(random_perk)
 
+    @staticmethod
+    def collecting():
+        collecting = mixer.Sound('sounds/Collecting.wav')
+        collecting.play()

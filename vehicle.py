@@ -10,7 +10,7 @@ class Vehicle:
     types_of_vehicles = [yellow_truck, fire_truck, red_truck, garbagge_collector]
 
     def __init__(self, x, y, number_type):
-        self.obstacle_image = self.types_of_vehicles[number_type] #.convert_alpha()
+        self.obstacle_image = self.types_of_vehicles[number_type] 
         self.x = x
         self.y = y
         self.mask = pygame.mask.from_surface(self.obstacle_image)
