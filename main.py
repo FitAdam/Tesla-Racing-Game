@@ -187,7 +187,7 @@ def main(window):
                 shields.remove(shield)
 
 def main_menu(screen):
-    mixer.music.load('menu_music.mp3')
+    mixer.music.load('sounds/menu_music.mp3')
     mixer.music.play(-1)
     run = True
     while  run:
@@ -216,7 +216,7 @@ def game_over(screen, score):
     db.add_record(score)
     tablescore = db.get_records()
     db.close_connection()
-    mixer.music.load('menu_music.mp3')
+    mixer.music.load('sounds/menu_music.mp3')
     mixer.music.play(-1)
     run = True
     while  run:
