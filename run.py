@@ -1,4 +1,4 @@
-from main import main_menu
+from game.main import main_menu
 
 
 if __name__ == "__main__":

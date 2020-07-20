@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
-from vehicle import Vehicle
-from bonuses import Shield_bonus, Live_bonus
+from game.vehicle import Vehicle
+from game.bonuses import Shield_bonus, Live_bonus
 import random
 from pygame import mixer
 

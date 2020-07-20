@@ -1,13 +1,13 @@
 import pygame
 from pygame.locals import *
 import random
-from database import DB
-from view import View
-from car import Car
-from vehicle import Vehicle
-from bonuses import Shield_bonus, Live_bonus
-from mechanics import Mechanics
-from crash import Crash
+from game.database import DB
+from game.view import View
+from game.car import Car
+from game.vehicle import Vehicle
+from game.bonuses import Shield_bonus, Live_bonus
+from game.mechanics import Mechanics
+from game.crash import Crash
 from pygame import mixer
 
 
@@ -211,11 +211,13 @@ def main_menu(screen):
 
 
 def game_over(screen, score):
+    """
     db = DB()
     db.connect()
     db.add_record(score)
     tablescore = db.get_records()
     db.close_connection()
+    """
     mixer.music.load('sounds/menu_music.mp3')
     mixer.music.play(-1)
     run = True
@@ -231,10 +233,10 @@ def game_over(screen, score):
         #title_label = gameover_font.render("Game over!",1,(255,255,255))
         new_score_label = gameover_font.render(f"Your score is {score}!",1,(255,255,255))
         # TO DO FIX THE TABLE SCORE
-        table_score_label = gameover_font.render(f"Tablescore {tablescore}",1,(255,255,255))
+        #table_score_label = gameover_font.render(f"Tablescore {tablescore}",1,(255,255,255))
         #screen.blit(title_label,(600, 200) )
         screen.blit(new_score_label,(600, 300))
-        screen.blit(table_score_label,(600, 600))
+        #screen.blit(table_score_label,(600, 600))
         pygame.display.update()
 
         for event in pygame.event.get():
