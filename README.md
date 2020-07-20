@@ -5,6 +5,8 @@
 ##### Python Pygame
 ### Screenshots
 ![](screenshots/menu.png)
+![](screenshots/trucks.png)
+![](screenshots/crash.png)
 ### License
 
 MIT
